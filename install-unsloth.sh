@@ -1,7 +1,7 @@
-#!/bin/bash                                                                                          
-set -euo pipefail                                                                                    
-                                                                                                     
-# ── Unsloth installer — macOS · Linux · WSL ──────────────────────────────────                      
+#!/bin/bash                                                                                               
+set -euo pipefail                                                                                         
+                                                                                                          
+# ── Unsloth installer — macOS · Linux · WSL ──────────────────────────────────                           
 UNSLOTH_ENV="${UNSLOTH_ENV:-unsloth}"                                                                
 PYTHON_VERSION="${PYTHON_VERSION:-3.11}"                                                             
 HOST="127.0.0.1"                                                                                     
@@ -158,6 +158,12 @@ configure_nginx() {
         macos) conf_dir="$(brew --prefix)/etc/nginx/servers" ;;
         *)     conf_dir="/etc/nginx/conf.d" ;;
     esac
+
+    # Remove default site to avoid conflict on port 80
+    if [[ -f /etc/nginx/sites-enabled/default ]]; then
+        sudo rm -f /etc/nginx/sites-enabled/default
+        info "Removed default nginx site"
+    fi
 
     local conf_file="${conf_dir}/unsloth.conf"
     info "Writing nginx config to ${conf_file}..."
