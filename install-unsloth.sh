@@ -75,6 +75,25 @@ else
 fi
 ok "nginx running on port ${NGINX_PORT}"
 
+# ── Start Ollama in background ────────────────────────────────────────────────
+if command -v ollama &>/dev/null; then
+    info "Starting Ollama in background..."
+    if ! pgrep -x ollama &>/dev/null; then
+        nohup ollama serve > /tmp/ollama.log 2>&1 &
+        OLLAMA_PID=$!
+        sleep 2
+        if kill -0 "$OLLAMA_PID" 2>/dev/null; then
+            ok "Ollama started (PID $OLLAMA_PID, logs: /tmp/ollama.log)"
+        else
+            die "Ollama failed to start — check /tmp/ollama.log"
+        fi
+    else
+        ok "Ollama already running"
+    fi
+else
+    info "Ollama not found, skipping"
+fi
+
 # ── Start Unsloth Studio ──────────────────────────────────────────────────────
 ok "Installation complete!"
 info "Starting Unsloth Studio on 0.0.0.0:${PORT} (proxied via port ${NGINX_PORT})..."
