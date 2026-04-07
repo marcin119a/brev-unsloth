@@ -99,4 +99,15 @@ ok "Installation complete!"
 info "Starting Unsloth Studio on 0.0.0.0:${PORT} (proxied via port ${NGINX_PORT})..."
 echo ""
 
-unsloth studio -H 0.0.0.0 -p "$PORT"
+export PATH="$HOME/.local/bin:$PATH"
+
+nohup unsloth studio -H 0.0.0.0 -p "$PORT" > /tmp/unsloth.log 2>&1 &
+UNSLOTH_PID=$!
+sleep 3
+
+if kill -0 "$UNSLOTH_PID" 2>/dev/null; then
+    ok "Unsloth Studio started (PID $UNSLOTH_PID, logs: /tmp/unsloth.log)"
+    ok "Access: http://$(curl -sf https://checkip.amazonaws.com || echo '35.153.182.196')/"
+else
+    die "Unsloth Studio failed to start — check /tmp/unsloth.log"
+fi
